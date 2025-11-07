@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汽车模拟选号</title>
+    <link rel="stylesheet" href="./css/mui.css">
+        <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: "Microsoft YaHei", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        .header {
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .header h1 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+        }
+        .header p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .step {
+            background-color: white;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #333;
+            border-left: 4px solid #4CAF50;
+            padding-left: 8px;
+        }
+        .selection-area {
+            margin-bottom: 12px;
+        }
+        .selection-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .plate-preview {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 15px;
+            background-color: #ffeb3b;
+            border: 2px dashed #ccc;
+            margin: 15px 0;
+            letter-spacing: 3px;
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .key {
+            padding: 12px 5px;
+            text-align: center;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .key:hover {
+            background-color: #bdbdbd;
+        }
+        .key.selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .controls {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 80px;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #ccc;
+            color: #333;
+        }
+        .btn:disabled {
+            background-color: #9e9e9e;
+            cursor: not-allowed;
+        }
+        .timer {
+            text-align: center;
+            font-size: 16px;
+            margin: 10px 0;
+            color: #f44336;
+            font-weight: bold;
+        }
+        .selected-char {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            margin: 0 3px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .empty-char {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            margin: 0 3px;
+            background-color: #e0e0e0;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+        }
+        .random-plates {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 8px;
+            margin: 15px 0;
+        }
+        .random-plate {
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 4px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            text-align: center;
+            letter-spacing: 1px;
+            height: 40px;
+            line-height: 24px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .random-plate.scrolling {
+            color: #666;
+        }
+        .random-plate.selected {
+            color: #4CAF50;
+            background-color: #c8e6c9 !important;
+            border: 2px solid #4CAF50;
+        }
+        .pause-section {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .pause-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .pause-btn:disabled {
+            background-color: #9e9e9e;
+            cursor: not-allowed;
+        }
+        .percentage-control {
+            margin: 15px 0;
+        }
+        .percentage-control label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .percentage-value {
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+        .slider-container input {
+            flex: 1;
+            margin: 0 8px;
+        }
+        .slider-container span {
+            font-size: 14px;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 5px;
+            }
+            .header {
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 18px;
+            }
+            .header p {
+                font-size: 12px;
+            }
+            .step {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            .step-title {
+                font-size: 15px;
+                margin-bottom: 10px;
+            }
+            .plate-preview {
+                font-size: 20px;
+                padding: 10px;
+                letter-spacing: 2px;
+            }
+            .random-plates {
+                grid-gap: 5px;
+            }
+            .random-plate {
+                font-size: 12px;
+                height: 35px;
+                line-height: 20px;
+                padding: 7px 2px;
+            }
+            .btn {
+                padding: 8px 15px;
+                font-size: 13px;
+                min-width: 70px;
+                margin: 3px;
+            }
+            .key {
+                padding: 10px 3px;
+                font-size: 14px;
+            }
+            .selected-char, .empty-char {
+                width: 25px;
+                height: 25px;
+                line-height: 25px;
+                font-size: 12px;
+            }
+            .pause-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .timer {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 16px;
+            }
+            .step-title {
+                font-size: 14px;
+            }
+            .plate-preview {
+                font-size: 18px;
+                padding: 8px;
+                letter-spacing: 1px;
+            }
+            .random-plate {
+                font-size: 11px;
+                height: 30px;
+                line-height: 16px;
+                padding: 6px 1px;
+            }
+            .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 60px;
+            }
+            .key {
+                padding: 8px 2px;
+                font-size: 12px;
+            }
+            .selected-char, .empty-char {
+                width: 22px;
+                height: 22px;
+                line-height: 22px;
+                font-size: 11px;
+            }
+            select {
+                padding: 8px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>机动车号牌模拟选号系统</h1>
+            <p>请选择地区和城市，然后进行选号</p>
+        </div>
+
+        <!-- 步骤1：选择地区 -->
+        <div class="step" id="step1">
+            <div class="step-title">第一步：选择地区</div>
+            <div class="selection-area">
+                <div class="selection-label">请选择省份：</div>
+                <select id="provinceSelect" class="mui-select">
+                    <option value="">请选择省份</option>
+                    <option value="京">北京市</option>
+                    <option value="津">天津市</option>
+                    <option value="沪">上海市</option>
+                    <option value="渝">重庆市</option>
+                    <option value="冀">河北省</option>
+                    <option value="豫">河南省</option>
+                    <option value="云">云南省</option>
+                    <option value="辽">辽宁省</option>
+                    <option value="黑">黑龙江省</option>
+                    <option value="湘">湖南省</option>
+                    <option value="皖">安徽省</option>
+                    <option value="鲁">山东省</option>
+                    <option value="苏">江苏省</option>
+                    <option value="浙">浙江省</option>
+                    <option value="赣">江西省</option>
+                    <option value="鄂">湖北省</option>
+                    <option value="桂">广西壮族自治区</option>
+                    <option value="甘">甘肃省</option>
+                    <option value="晋">山西省</option>
+                    <option value="陕">陕西省</option>
+                    <option value="蒙">内蒙古自治区</option>
+                    <option value="吉">吉林省</option>
+                    <option value="闽">福建省</option>
+                    <option value="贵">贵州省</option>
+                    <option value="粤">广东省</option>
+                    <option value="青">青海省</option>
+                    <option value="藏">西藏自治区</option>
+                    <option value="川">四川省</option>
+                    <option value="宁">宁夏回族自治区</option>
+                    <option value="琼">海南省</option>
+                    <option value="新">新疆维吾尔自治区</option>
+                    <option value="港">香港特别行政区</option>
+                    <option value="澳">澳门特别行政区</option>
+                    <option value="台">台湾省</option>
+                </select>
+            </div>
+            <div class="controls">
+                <button class="btn btn-primary" id="nextToCity" disabled>下一步</button>
+            </div>
+        </div>
+
+        <!-- 步骤2：选择城市 -->
+        <div class="step" id="step2" style="display: none;">
+            <div class="step-title">第二步：选择城市</div>
+            <div class="selection-area">
+                <div class="selection-label">请选择城市：</div>
+                <select id="citySelect" class="mui-select">
+                    <option value="">请先选择省份</option>
+                </select>
+            </div>
+            <div class="controls">
+                <button class="btn btn-secondary" id="backToProvince">上一步</button>
+                <button class="btn btn-primary" id="nextToSelection" disabled>下一步</button>
+            </div>
+        </div>
+
+        <!-- 步骤3：豹子号百分比设置 -->
+        <div class="step" id="step3" style="display: none;">
+            <div class="step-title">第三步：设置豹子号出现概率</div>
+            <p>豹子号是指车牌后五位中有三位或以上相同数字的号码（如京A88888、沪B66666等）</p>
+            
+            <div class="percentage-control">
+                <label for="percentageSlider">豹子号出现概率：</label>
+                <div class="slider-container">
+                    <span>0%</span>
+                    <input type="range" id="percentageSlider" min="0" max="100" value="30">
+                    <span>100%</span>
+                </div>
+                <div style="text-align: center; margin-top: 10px;">
+                    当前概率：<span id="percentageValue" class="percentage-value">30%</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-secondary" id="backToCity">上一步</button>
+                <button class="btn btn-primary" id="startSelection">开始选号</button>
+            </div>
+        </div>
+
+        <!-- 步骤4：选号 -->
+        <div class="step" id="step4" style="display: none;">
+            <div class="step-title">第四步：选择号码</div>
+            <div class="timer" id="timer">选号时间剩余: 180秒</div>
+            <div class="plate-preview" id="platePreview">
+                <span id="provinceCode">京</span>
+                <span id="cityCode">A</span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+            </div>
+            <div id="selectedChars">
+                已选字符: 
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+                <span class="empty-char"></span>
+            </div>
+            
+            <!-- 随机选号区域 (4行5列完整号码) -->
+            <div class="random-plates" id="randomPlatesArea">
+                <!-- 通过JavaScript动态生成20个随机完整号码 -->
+            </div>
+            
+            <div class="pause-section">
+                <button class="pause-btn" id="pauseBtn">暂停选择</button>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-secondary" id="backToPercentage">上一步</button>
+                <button class="btn btn-secondary" id="resetSelection">重新选择</button>
+                <button class="btn btn-primary" id="confirmPlate" disabled>确认选号</button>
+            </div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div class="step" id="resultStep" style="display: none; text-align: center;">
+            <div class="step-title">选号成功</div>
+            <div class="plate-preview">
+                <span id="resultProvince">京</span>
+                <span id="resultCity">A</span>
+                <span id="resultNumber1">1</span>
+                <span id="resultNumber2">2</span>
+                <span id="resultNumber3">3</span>
+                <span id="resultNumber4">4</span>
+                <span id="resultNumber5">5</span>
+            </div>
+            <p>恭喜您成功选择车牌号码！</p>
+            <div class="controls">
+                <button class="btn btn-primary" id="restart">再选一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/mui.js"></script>
+    <script>
+        // 城市数据
+        const cityData = {
+            "京": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "津": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "沪": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "渝": ["A", "B", "C", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "冀": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "R", "T", "U", "V", "W", "X", "Y", "Z"],
+            "豫": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "云": ["A", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "辽": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "黑": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "R", "S", "T", "V", "W", "X", "Y"],
+            "湘": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "皖": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "鲁": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "苏": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "浙": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "赣": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "鄂": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "桂": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "甘": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "晋": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "陕": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "蒙": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T"],
+            "吉": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Y", "Z"],
+            "闽": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "贵": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "粤": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "青": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Y", "Z"],
+            "藏": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"],
+            "川": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "宁": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V"],
+            "琼": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Y", "Z"],
+            "新": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"],
+            "港": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "澳": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+            "台": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+        };
+
+        // 数字和字母
+        const numberChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const letterChars = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        const allChars = [...numberChars, ...letterChars];
+
+        // 当前状态
+        let currentState = {
+            province: '',
+            city: '',
+            selectedChars: ['', '', '', '', '', '', ''],
+            timer: 180, // 3分钟倒计时
+            timerInterval: null,
+            randomIntervals: [], // 存储20个随机定时器
+            isPaused: false, // 是否已暂停
+            selectedPlate: null, // 用户选择的完整车牌号
+            leopardPercentage: 30 // 豹子号出现概率
+        };
+
+        // DOM元素
+        const provinceSelect = document.getElementById('provinceSelect');
+        const citySelect = document.getElementById('citySelect');
+        const nextToCityBtn = document.getElementById('nextToCity');
+        const backToProvinceBtn = document.getElementById('backToProvince');
+        const nextToSelectionBtn = document.getElementById('nextToSelection');
+        const backToCityBtn = document.getElementById('backToCity');
+        const startSelectionBtn = document.getElementById('startSelection');
+        const backToPercentageBtn = document.getElementById('backToPercentage');
+        const resetSelectionBtn = document.getElementById('resetSelection');
+        const confirmPlateBtn = document.getElementById('confirmPlate');
+        const platePreview = document.getElementById('platePreview');
+        const provinceCode = document.getElementById('provinceCode');
+        const cityCode = document.getElementById('cityCode');
+        const timerDisplay = document.getElementById('timer');
+        const restartBtn = document.getElementById('restart');
+        const randomPlatesArea = document.getElementById('randomPlatesArea');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const percentageSlider = document.getElementById('percentageSlider');
+        const percentageValue = document.getElementById('percentageValue');
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 省份选择
+            provinceSelect.addEventListener('change', function() {
+                currentState.province = this.value;
+                provinceCode.textContent = this.value;
+                updateCitySelect();
+                nextToCityBtn.disabled = !this.value;
+            });
+
+            // 城市选择
+            citySelect.addEventListener('change', function() {
+                currentState.city = this.value;
+                cityCode.textContent = this.value;
+                nextToSelectionBtn.disabled = !this.value;
+            });
+
+            // 百分比滑块
+            percentageSlider.addEventListener('input', function() {
+                currentState.leopardPercentage = this.value;
+                percentageValue.textContent = this.value + '%';
+            });
+
+            // 步骤切换按钮
+            nextToCityBtn.addEventListener('click', function() {
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+            });
+
+            backToProvinceBtn.addEventListener('click', function() {
+                document.getElementById('step2').style.display = 'none';
+                document.getElementById('step1').style.display = 'block';
+            });
+
+            nextToSelectionBtn.addEventListener('click', function() {
+                document.getElementById('step2').style.display = 'none';
+                document.getElementById('step3').style.display = 'block';
+            });
+
+            backToCityBtn.addEventListener('click', function() {
+                document.getElementById('step3').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+            });
+
+            startSelectionBtn.addEventListener('click', function() {
+                document.getElementById('step3').style.display = 'none';
+                document.getElementById('step4').style.display = 'block';
+                startTimer();
+                startRandomPlates();
+            });
+
+            backToPercentageBtn.addEventListener('click', function() {
+                document.getElementById('step4').style.display = 'none';
+                document.getElementById('step3').style.display = 'block';
+                stopTimer();
+                stopRandomPlates();
+            });
+
+            resetSelectionBtn.addEventListener('click', function() {
+                resetSelection();
+            });
+
+            confirmPlateBtn.addEventListener('click', function() {
+                document.getElementById('step4').style.display = 'none';
+                document.getElementById('resultStep').style.display = 'block';
+                document.getElementById('resultProvince').textContent = currentState.province;
+                document.getElementById('resultCity').textContent = currentState.city;
+                document.getElementById('resultNumber1').textContent = currentState.selectedChars[2];
+                document.getElementById('resultNumber2').textContent = currentState.selectedChars[3];
+                document.getElementById('resultNumber3').textContent = currentState.selectedChars[4];
+                document.getElementById('resultNumber4').textContent = currentState.selectedChars[5];
+                document.getElementById('resultNumber5').textContent = currentState.selectedChars[6];
+                stopTimer();
+                stopRandomPlates();
+            });
+
+            restartBtn.addEventListener('click', function() {
+                document.getElementById('resultStep').style.display = 'none';
+                document.getElementById('step1').style.display = 'block';
+                resetAll();
+            });
+
+            // 暂停按钮
+            pauseBtn.addEventListener('click', function() {
+                pauseRandomPlates();
+            });
+        }
+
+        // 更新城市选择框
+        function updateCitySelect() {
+            citySelect.innerHTML = '<option value="">请选择城市</option>';
+            if (currentState.province && cityData[currentState.province]) {
+                cityData[currentState.province].forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            }
+        }
+
+        // 检查是否为豹子号（后五位中有三位或以上相同数字）
+        function isLeopardNumber(plate) {
+            // 取后五位数字
+            const lastFive = plate.substring(2);
+            const digitCount = {};
+            
+            // 统计每个数字出现的次数
+            for (let char of lastFive) {
+                if (/\d/.test(char)) { // 只统计数字
+                    digitCount[char] = (digitCount[char] || 0) + 1;
+                }
+            }
+            
+            // 检查是否有数字出现3次或以上
+            for (let count of Object.values(digitCount)) {
+                if (count >= 3) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // 生成豹子号
+        function generateLeopardPlate() {
+            let plate = currentState.province + currentState.city;
+            
+            // 随机选择一个数字作为豹子数字（0-9）
+            const leopardDigit = numberChars[Math.floor(Math.random() * numberChars.length)];
+            
+            // 创建一个包含5个位置的数组
+            let positions = ['', '', '', '', ''];
+            
+            // 随机选择3个位置放置豹子数字
+            let placed = 0;
+            while (placed < 3) {
+                const pos = Math.floor(Math.random() * 5);
+                if (positions[pos] === '') {
+                    positions[pos] = leopardDigit;
+                    placed++;
+                }
+            }
+            
+            // 填充剩余位置
+            for (let i = 0; i < 5; i++) {
+                if (positions[i] === '') {
+                    positions[i] = allChars[Math.floor(Math.random() * allChars.length)];
+                }
+            }
+            
+            // 组合成完整车牌号
+            plate += positions.join('');
+            return plate;
+        }
+
+        // 生成普通车牌号
+        function generateNormalPlate() {
+            let plate = currentState.province + currentState.city;
+            for (let i = 0; i < 5; i++) {
+                plate += allChars[Math.floor(Math.random() * allChars.length)];
+            }
+            return plate;
+        }
+
+        // 生成随机车牌号（根据豹子号概率）
+        function generateRandomPlate() {
+            // 生成0-100之间的随机数
+            const rand = Math.floor(Math.random() * 100);
+            
+            // 根据设定的概率决定是否生成豹子号
+            if (rand < currentState.leopardPercentage) {
+                return generateLeopardPlate();
+            } else {
+                return generateNormalPlate();
+            }
+        }
+
+        // 生成随机选号界面 (4行5列)
+        function generateRandomPlates() {
+            randomPlatesArea.innerHTML = '';
+            
+            // 创建20个随机完整车牌号
+            for (let i = 0; i < 20; i++) {
+                const plateDiv = document.createElement('div');
+                plateDiv.className = 'random-plate scrolling';
+                plateDiv.id = `randomPlate${i}`;
+                plateDiv.textContent = generateRandomPlate();
+                randomPlatesArea.appendChild(plateDiv);
+            }
+        }
+
+        // 开始随机车牌号
+        function startRandomPlates() {
+            // 重置状态
+            currentState.selectedChars = [currentState.province, currentState.city, '', '', '', '', ''];
+            currentState.isPaused = false;
+            currentState.selectedPlate = null;
+            currentState.randomIntervals = new Array(20);
+            
+            // 生成随机车牌号
+            generateRandomPlates();
+            
+            // 更新预览
+            updatePreview();
+            
+            // 启用暂停按钮
+            pauseBtn.disabled = false;
+            
+            // 禁用确认按钮
+            confirmPlateBtn.disabled = true;
+            
+            // 开始随机滚动
+            for (let i = 0; i < 20; i++) {
+                startRandomInterval(i);
+            }
+        }
+
+        // 开始单个车牌号的随机滚动
+        function startRandomInterval(index) {
+            if (currentState.randomIntervals[index]) {
+                clearInterval(currentState.randomIntervals[index]);
+            }
+            
+            currentState.randomIntervals[index] = setInterval(() => {
+                if (!currentState.isPaused) {
+                    document.getElementById(`randomPlate${index}`).textContent = generateRandomPlate();
+                }
+            }, 100);
+        }
+
+        // 暂停随机车牌号
+        function pauseRandomPlates() {
+            // 暂停所有随机滚动
+            currentState.isPaused = true;
+            
+            // 禁用暂停按钮
+            pauseBtn.disabled = true;
+            
+            // 清除所有定时器
+            for (let i = 0; i < 20; i++) {
+                if (currentState.randomIntervals[i]) {
+                    clearInterval(currentState.randomIntervals[i]);
+                    currentState.randomIntervals[i] = null;
+                }
+            }
+        }
+
+        // 点击选择车牌号
+        function selectPlate(plateText) {
+            // 如果已经暂停，可以选择车牌号
+            if (currentState.isPaused && !currentState.selectedPlate) {
+                // 记录选择的车牌号
+                currentState.selectedPlate = plateText;
+                
+                // 更新selectedChars数组
+                for (let i = 0; i < 7; i++) {
+                    currentState.selectedChars[i] = plateText.charAt(i);
+                }
+                
+                // 更新预览
+                updatePreview();
+                
+                // 高亮显示选中的车牌号
+                for (let i = 0; i < 20; i++) {
+                    const plateElement = document.getElementById(`randomPlate${i}`);
+                    if (plateElement.textContent === plateText) {
+                        plateElement.classList.remove('scrolling');
+                        plateElement.classList.add('selected');
+                    }
+                }
+                
+                // 启用确认按钮
+                confirmPlateBtn.disabled = false;
+            }
+        }
+
+        // 停止随机选号
+        function stopRandomPlates() {
+            for (let i = 0; i < 20; i++) {
+                if (currentState.randomIntervals[i]) {
+                    clearInterval(currentState.randomIntervals[i]);
+                    currentState.randomIntervals[i] = null;
+                }
+            }
+        }
+
+        // 更新预览
+        function updatePreview() {
+            const selectedCharsDiv = document.getElementById('selectedChars');
+            selectedCharsDiv.innerHTML = '已选字符: ';
+            
+            for (let i = 0; i < 7; i++) {
+                const charSpan = document.createElement('span');
+                if (i === 0) {
+                    charSpan.className = 'selected-char';
+                    charSpan.textContent = currentState.province;
+                } else if (i === 1) {
+                    charSpan.className = 'selected-char';
+                    charSpan.textContent = currentState.city;
+                } else if (currentState.selectedChars[i]) {
+                    charSpan.className = 'selected-char';
+                    charSpan.textContent = currentState.selectedChars[i];
+                } else {
+                    charSpan.className = 'empty-char';
+                    charSpan.textContent = '';
+                }
+                selectedCharsDiv.appendChild(charSpan);
+            }
+        }
+
+        // 开始倒计时
+        function startTimer() {
+            currentState.timer = 180;
+            updateTimerDisplay();
+            
+            currentState.timerInterval = setInterval(() => {
+                currentState.timer--;
+                updateTimerDisplay();
+                
+                if (currentState.timer <= 0) {
+                    clearInterval(currentState.timerInterval);
+                    alert('选号时间已到，请重新选择！');
+                    resetSelection();
+                }
+            }, 1000);
+        }
+
+        // 停止倒计时
+        function stopTimer() {
+            if (currentState.timerInterval) {
+                clearInterval(currentState.timerInterval);
+                currentState.timerInterval = null;
+            }
+        }
+
+        // 更新倒计时显示
+        function updateTimerDisplay() {
+            const minutes = Math.floor(currentState.timer / 60);
+            const seconds = currentState.timer % 60;
+            timerDisplay.textContent = `选号时间剩余: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            if (currentState.timer <= 30) {
+                timerDisplay.style.color = '#f44336';
+            } else {
+                timerDisplay.style.color = '#333';
+            }
+        }
+
+        // 重置选择
+        function resetSelection() {
+            stopRandomPlates();
+            currentState.selectedChars = [currentState.province, currentState.city, '', '', '', '', ''];
+            currentState.isPaused = false;
+            currentState.selectedPlate = null;
+            confirmPlateBtn.disabled = true;
+            pauseBtn.disabled = false;
+            updatePreview();
+            
+            // 重新开始随机选择
+            startRandomPlates();
+            
+            // 重置倒计时
+            stopTimer();
+            startTimer();
+        }
+
+        // 重置所有
+        function resetAll() {
+            stopRandomPlates();
+            currentState = {
+                province: '',
+                city: '',
+                selectedChars: ['', '', '', '', '', '', ''],
+                timer: 180,
+                timerInterval: null,
+                randomIntervals: [],
+                isPaused: false,
+                selectedPlate: null,
+                leopardPercentage: 30
+            };
+            
+            provinceSelect.value = '';
+            citySelect.innerHTML = '<option value="">请先选择省份</option>';
+            provinceCode.textContent = '京';
+            cityCode.textContent = 'A';
+            nextToCityBtn.disabled = true;
+            nextToSelectionBtn.disabled = true;
+            confirmPlateBtn.disabled = true;
+            pauseBtn.disabled = false;
+            percentageSlider.value = 30;
+            percentageValue.textContent = '30%';
+            updatePreview();
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            updatePreview();
+            
+            // 为所有随机车牌号添加点击事件
+            randomPlatesArea.addEventListener('click', function(e) {
+                if (e.target.classList.contains('random-plate') && currentState.isPaused && !currentState.selectedPlate) {
+                    selectPlate(e.target.textContent);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
